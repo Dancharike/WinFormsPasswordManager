@@ -4,6 +4,10 @@ using PasswordManager.Core.Services;
 
 namespace PasswordManager.WinFormsUI;
 
+/// <summary>
+/// Main application window for managing encrypted passwords.
+/// Handles file decryption/encryption, entry management, and UI interaction.
+/// </summary>
 public partial class MainForm : Form
 {
     private readonly string _username;
@@ -12,9 +16,15 @@ public partial class MainForm : Form
     private readonly IStorageService _storageService;
     private List<PasswordEntry> _entries = new();
 
+    // path to an encrypted file bound to the user
     private string EncryptedFile => $"{_username}.dat";
+
+    // temporary file to store decrypted password data during the session
     private string TempFile => $"{_username}.csv";
 
+    /// <summary>
+    /// Initializes the main form, decrypts user file if present, and loads existing entries.
+    /// </summary>
     public MainForm(string username, string userPassword)
     {
         InitializeComponent();
@@ -44,16 +54,25 @@ public partial class MainForm : Form
         RefreshList();
     }
 
+    /// <summary>
+    /// Loads password entries from the storage service.
+    /// </summary>
     private void LoadData()
     {
         _entries = _storageService.Load();
     }
 
+    /// <summary>
+    /// Saves the current list of password entries to file.
+    /// </summary>
     private void SaveData()
     {
         _storageService.Save(_entries);
     }
 
+    /// <summary>
+    /// Refreshes the listbox UI with current entry titles.
+    /// </summary>
     private void RefreshList()
     {
         listBoxEntries.Items.Clear();
@@ -63,6 +82,9 @@ public partial class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Adds a new password entry with encryption.
+    /// </summary>
     private void btnAdd_Click(object sender, EventArgs e)
     {
         var password = txtPassword.Text;
@@ -81,6 +103,9 @@ public partial class MainForm : Form
         SaveData();
     }
 
+    /// <summary>
+    /// Deletes the selected password entry by title.
+    /// </summary>
     private void btnDelete_Click(object sender, EventArgs e)
     {
         if (listBoxEntries.SelectedIndex < 0) return;
@@ -96,6 +121,9 @@ public partial class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Searches for an entry by title and populates UI fields.
+    /// </summary>
     private void btnSearch_Click(object sender, EventArgs e)
     {
         var query = txtSearch.Text.ToLower();
@@ -113,7 +141,10 @@ public partial class MainForm : Form
             MessageBox.Show("Entry not found.");
         }
     }
-    
+
+    /// <summary>
+    /// Decrypts and displays the password of the current entry.
+    /// </summary>
     private void btnShowPassword_Click(object sender, EventArgs e)
     {
         var title = txtTitle.Text;
@@ -125,6 +156,9 @@ public partial class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Generates a random password based on selected criteria.
+    /// </summary>
     private void btnGenerate_Click(object sender, EventArgs e)
     {
         int length = (int)numLength.Value;
@@ -152,6 +186,9 @@ public partial class MainForm : Form
         txtPassword.Text = password;
     }
 
+    /// <summary>
+    /// Copies the current password to the clipboard.
+    /// </summary>
     private void btnCopy_Click(object sender, EventArgs e)
     {
         if (!string.IsNullOrWhiteSpace(txtPassword.Text))
@@ -161,6 +198,9 @@ public partial class MainForm : Form
         }
     }
 
+    /// <summary>
+    /// Encrypts and saves data on form closing. Deletes temporary CSV.
+    /// </summary>
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {
         SaveData();
